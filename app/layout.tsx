@@ -58,7 +58,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://sentry.io" />
       </head>
       <body className="antialiased bg-white text-gray-900">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
           <Providers>
             {children}
           </Providers>
