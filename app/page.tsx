@@ -2,11 +2,9 @@
 
 import { useSession, signIn } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
   const { user, isLoading } = useSession();
-  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -27,11 +25,19 @@ export default function HomePage() {
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <span className="text-sm text-gray-600">Welcome, {user.name}</span>
-                <Link href="/dashboard" className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition">
+                <span className="text-sm text-gray-600 hidden sm:inline">
+                  Welcome, {user.name || 'User'}
+                </span>
+                <Link 
+                  href="/dashboard" 
+                  className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+                >
                   Dashboard
                 </Link>
-                <a href="/api/auth/logout" className="px-4 py-2 text-gray-600 hover:text-gray-900 transition">
+                <a 
+                  href="/api/auth/logout" 
+                  className="px-4 py-2 text-gray-600 hover:text-gray-900 transition"
+                >
                   Logout
                 </a>
               </>
@@ -56,7 +62,7 @@ export default function HomePage() {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Monitor application bugs and security threats in real-time. Get instant alerts and comprehensive analytics.
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 flex-wrap">
             {!user && (
               <>
                 <button
@@ -65,13 +71,19 @@ export default function HomePage() {
                 >
                   Get Started Free
                 </button>
-                <a href="#pricing" className="px-8 py-3 border-2 border-gray-300 text-gray-900 rounded-lg hover:border-gray-400 transition font-medium">
+                <Link 
+                  href="#pricing" 
+                  className="px-8 py-3 border-2 border-gray-300 text-gray-900 rounded-lg hover:border-gray-400 transition font-medium"
+                >
                   View Pricing
-                </a>
+                </Link>
               </>
             )}
             {user && (
-              <Link href="/dashboard" className="px-8 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-medium">
+              <Link 
+                href="/dashboard" 
+                className="px-8 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-medium"
+              >
                 Go to Dashboard
               </Link>
             )}
@@ -130,11 +142,17 @@ export default function HomePage() {
               <li>✓ 1 team member</li>
             </ul>
             {!user ? (
-              <button onClick={() => signIn()} className="w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition">
+              <button 
+                onClick={() => signIn()} 
+                className="w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+              >
                 Get Started
               </button>
             ) : (
-              <Link href="/checkout?plan=starter" className="block text-center py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition">
+              <Link 
+                href="/checkout?plan=starter" 
+                className="block text-center py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+              >
                 Subscribe
               </Link>
             )}
@@ -154,11 +172,17 @@ export default function HomePage() {
               <li>✓ Custom integrations</li>
             </ul>
             {!user ? (
-              <button onClick={() => signIn()} className="w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition">
+              <button 
+                onClick={() => signIn()} 
+                className="w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+              >
                 Get Started
               </button>
             ) : (
-              <Link href="/checkout?plan=professional" className="block text-center py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition">
+              <Link 
+                href="/checkout?plan=professional" 
+                className="block text-center py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+              >
                 Subscribe
               </Link>
             )}
@@ -174,7 +198,10 @@ export default function HomePage() {
               <li>✓ Unlimited team members</li>
               <li>✓ Custom SLA</li>
             </ul>
-            <a href="mailto:sales@pulseguardhq.xyz" className="block text-center py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+            <a 
+              href="mailto:sales@pulseguardhq.xyz" 
+              className="block text-center py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+            >
               Contact Sales
             </a>
           </div>
@@ -192,15 +219,16 @@ export default function HomePage() {
             <div>
               <h4 className="text-white font-bold mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#pricing" className="hover:text-white transition">Pricing</a></li>
-                <li><a href="/docs" className="hover:text-white transition">Documentation</a></li>
+                <li><Link href="#pricing" className="hover:text-white transition">Pricing</Link></li>
+                {/* Remove /docs link until page is created */}
+                {/* <li><Link href="/docs" className="hover:text-white transition">Documentation</Link></li> */}
               </ul>
             </div>
             <div>
               <h4 className="text-white font-bold mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="/privacy" className="hover:text-white transition">Privacy</a></li>
-                <li><a href="/terms" className="hover:text-white transition">Terms</a></li>
+                <li><Link href="/privacy" className="hover:text-white transition">Privacy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition">Terms</Link></li>
               </ul>
             </div>
             <div>
