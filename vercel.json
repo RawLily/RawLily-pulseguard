@@ -1,6 +1,5 @@
 {
-  "buildCommand": "next build",
-  "devCommand": "next dev",
-  "installCommand": "npm ci",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "nodeVersion": "20.x",
+  "installCommand": "npm install"
 }
