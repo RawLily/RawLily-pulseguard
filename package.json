@@ -1,0 +1,52 @@
+{
+  "name": "pulseguard",
+  "version": "1.0.0",
+  "description": "PulseGuard - Enterprise Bug & Security Monitoring SaaS",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "next": "^14.2.3",
+    "@auth0/nextjs-auth0": "^3.5.0",
+    "stripe": "^16.11.0",
+    "@neondatabase/serverless": "^0.9.4",
+    "postgres": "^3.4.4",
+    "@sentry/nextjs": "^7.119.0",
+    "resend": "^3.2.0",
+    "axios": "^1.7.7",
+    "date-fns": "^3.6.0",
+    "zustand": "^4.5.5",
+    "tailwindcss": "^3.4.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.4.0",
+    "crypto-js": "^4.2.0",
+    "jsonwebtoken": "^9.1.2",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^7.1.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "@tailwindcss/typography": "^0.5.13",
+    "@types/node": "^20.12.12",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@types/express-rate-limit": "^6.0.0",
+    "@types/cors": "^2.8.17",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.3",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "packageManager": "npm@10.0.0"
+}
