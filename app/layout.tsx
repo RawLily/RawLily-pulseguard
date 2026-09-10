@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Providers } from '@/app/providers';
-import '@/app/globals.css';
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'PulseGuard - Enterprise Bug & Security Monitoring',
