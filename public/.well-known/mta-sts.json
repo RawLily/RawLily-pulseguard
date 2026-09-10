@@ -1,0 +1,7 @@
+{
+  "version": "STSv1",
+  "mode": "enforce",
+  "max_age": 604800,
+  "mx": ["mail.pulseguardhq.xyz"],
+  "report_uri": ["mailto:security@pulseguardhq.xyz"]
+}
