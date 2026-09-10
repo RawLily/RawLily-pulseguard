@@ -30,7 +30,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.stripe.com https://auth.pulseguardhq.xyz https://api.resend.com https://sentry.io; frame-src 'self' https://js.stripe.com; object-src 'none';"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.auth0.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://dev-8zux3342wekcgta1.us.auth0.com https://api.stripe.com https://api.resend.com https://sentry.io; frame-src 'self' https://auth0.com https://checkout.stripe.com https://js.stripe.com; object-src 'none';"
           },
           {
             key: 'Permissions-Policy',
