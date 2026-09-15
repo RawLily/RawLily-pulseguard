@@ -19,11 +19,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    
-    // Validate incoming data
     const event = EventSchema.parse(body);
 
-    // Mock: Log the event
     console.log(`[${event.type.toUpperCase()}] ${event.severity}: ${event.message}`);
 
     return NextResponse.json(
@@ -38,3 +35,11 @@ export async function POST(req: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid event data', details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    console.error('Ingest API error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
