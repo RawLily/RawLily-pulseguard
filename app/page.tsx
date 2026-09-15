@@ -1,15 +1,15 @@
 'use client';
 
-import { useSession, signIn } from '@auth0/nextjs-auth0/client';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link';
 
 export default function HomePage() {
-  const { user, isLoading } = useSession();
+  const { user, isLoading } = useUser();
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -17,20 +17,20 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-brand-600">
+          <div className="text-2xl font-bold text-blue-600">
             🛡️ PulseGuard
           </div>
           <div className="flex items-center gap-4">
             {user ? (
               <>
                 <span className="text-sm text-gray-600 hidden sm:inline">
-                  Welcome, {user.name || 'User'}
+                  Welcome, {user.name || user.email || 'User'}
                 </span>
                 <Link 
                   href="/dashboard" 
-                  className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                 >
                   Dashboard
                 </Link>
@@ -42,12 +42,12 @@ export default function HomePage() {
                 </a>
               </>
             ) : (
-              <button
-                onClick={() => signIn()}
-                className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+              <a
+                href="/api/auth/login"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
                 Sign In
-              </button>
+              </a>
             )}
           </div>
         </div>
@@ -65,12 +65,12 @@ export default function HomePage() {
           <div className="flex justify-center gap-4 flex-wrap">
             {!user && (
               <>
-                <button
-                  onClick={() => signIn()}
-                  className="px-8 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-medium"
+                <a
+                  href="/api/auth/login"
+                  className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
                 >
                   Get Started Free
-                </button>
+                </a>
                 <Link 
                   href="#pricing" 
                   className="px-8 py-3 border-2 border-gray-300 text-gray-900 rounded-lg hover:border-gray-400 transition font-medium"
@@ -82,7 +82,7 @@ export default function HomePage() {
             {user && (
               <Link 
                 href="/dashboard" 
-                className="px-8 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-medium"
+                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
               >
                 Go to Dashboard
               </Link>
@@ -92,35 +92,35 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-white rounded-lg my-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-white rounded-lg my-12 shadow-md">
         <h2 className="text-3xl font-bold text-center mb-12">Features</h2>
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="p-6 border border-gray-200 rounded-lg">
+          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
             <div className="text-3xl mb-4">⚡</div>
             <h3 className="text-xl font-bold mb-2">Real-Time Monitoring</h3>
             <p className="text-gray-600">Instant bug and security alerts as they happen</p>
           </div>
-          <div className="p-6 border border-gray-200 rounded-lg">
+          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
             <div className="text-3xl mb-4">📊</div>
             <h3 className="text-xl font-bold mb-2">Analytics & Insights</h3>
             <p className="text-gray-600">Comprehensive dashboards and trend analysis</p>
           </div>
-          <div className="p-6 border border-gray-200 rounded-lg">
+          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
             <div className="text-3xl mb-4">🔒</div>
             <h3 className="text-xl font-bold mb-2">Enterprise Security</h3>
             <p className="text-gray-600">Military-grade encryption and compliance</p>
           </div>
-          <div className="p-6 border border-gray-200 rounded-lg">
+          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
             <div className="text-3xl mb-4">🔗</div>
             <h3 className="text-xl font-bold mb-2">API Integration</h3>
             <p className="text-gray-600">Easy integration with your applications</p>
           </div>
-          <div className="p-6 border border-gray-200 rounded-lg">
+          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
             <div className="text-3xl mb-4">📧</div>
             <h3 className="text-xl font-bold mb-2">Smart Notifications</h3>
             <p className="text-gray-600">Customizable alerts via email and webhooks</p>
           </div>
-          <div className="p-6 border border-gray-200 rounded-lg">
+          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
             <div className="text-3xl mb-4">🚀</div>
             <h3 className="text-xl font-bold mb-2">Fast & Reliable</h3>
             <p className="text-gray-600">99.9% uptime SLA with lightning-fast response</p>
@@ -132,9 +132,9 @@ export default function HomePage() {
       <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <h2 className="text-3xl font-bold text-center mb-12">Pricing</h2>
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="p-8 border border-gray-200 rounded-lg">
+          <div className="p-8 border border-gray-200 rounded-lg hover:shadow-lg transition">
             <h3 className="text-xl font-bold mb-2">Starter</h3>
-            <p className="text-3xl font-bold text-brand-600 mb-4">$29<span className="text-sm text-gray-600">/month</span></p>
+            <p className="text-3xl font-bold text-blue-600 mb-4">$29<span className="text-sm text-gray-600">/month</span></p>
             <ul className="space-y-2 text-gray-600 mb-6">
               <li>✓ Up to 10,000 events/month</li>
               <li>✓ Basic analytics</li>
@@ -142,28 +142,28 @@ export default function HomePage() {
               <li>✓ 1 team member</li>
             </ul>
             {!user ? (
-              <button 
-                onClick={() => signIn()} 
-                className="w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+              <a 
+                href="/api/auth/login" 
+                className="block text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
                 Get Started
-              </button>
+              </a>
             ) : (
               <Link 
                 href="/checkout?plan=starter" 
-                className="block text-center py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+                className="block text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
                 Subscribe
               </Link>
             )}
           </div>
 
-          <div className="p-8 border-2 border-brand-600 rounded-lg relative">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-600 text-white px-4 py-1 rounded-full text-sm">
+          <div className="p-8 border-2 border-blue-600 rounded-lg relative hover:shadow-lg transition">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
               Popular
             </div>
             <h3 className="text-xl font-bold mb-2">Professional</h3>
-            <p className="text-3xl font-bold text-brand-600 mb-4">$99<span className="text-sm text-gray-600">/month</span></p>
+            <p className="text-3xl font-bold text-blue-600 mb-4">$99<span className="text-sm text-gray-600">/month</span></p>
             <ul className="space-y-2 text-gray-600 mb-6">
               <li>✓ Up to 100,000 events/month</li>
               <li>✓ Advanced analytics</li>
@@ -172,25 +172,25 @@ export default function HomePage() {
               <li>✓ Custom integrations</li>
             </ul>
             {!user ? (
-              <button 
-                onClick={() => signIn()} 
-                className="w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+              <a 
+                href="/api/auth/login" 
+                className="block text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
                 Get Started
-              </button>
+              </a>
             ) : (
               <Link 
                 href="/checkout?plan=professional" 
-                className="block text-center py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+                className="block text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
                 Subscribe
               </Link>
             )}
           </div>
 
-          <div className="p-8 border border-gray-200 rounded-lg">
+          <div className="p-8 border border-gray-200 rounded-lg hover:shadow-lg transition">
             <h3 className="text-xl font-bold mb-2">Enterprise</h3>
-            <p className="text-3xl font-bold text-brand-600 mb-4">Custom</p>
+            <p className="text-3xl font-bold text-blue-600 mb-4">Custom</p>
             <ul className="space-y-2 text-gray-600 mb-6">
               <li>✓ Unlimited events</li>
               <li>✓ Full analytics suite</li>
@@ -220,8 +220,6 @@ export default function HomePage() {
               <h4 className="text-white font-bold mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link href="#pricing" className="hover:text-white transition">Pricing</Link></li>
-                {/* Remove /docs link until page is created */}
-                {/* <li><Link href="/docs" className="hover:text-white transition">Documentation</Link></li> */}
               </ul>
             </div>
             <div>
