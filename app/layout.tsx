@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   title: 'PulseGuard - Enterprise Bug & Security Monitoring',
   description: 'Real-time threat detection and bug monitoring for modern applications. Monitor security threats, track bugs, and get instant alerts with enterprise-grade reliability.',
   keywords: 'monitoring, security, bug tracking, SaaS, threat detection, enterprise, alerting',
-  charset: 'utf-8',
   viewport: 'width=device-width, initial-scale=1.0, maximum-scale=5.0',
   
   icons: {
