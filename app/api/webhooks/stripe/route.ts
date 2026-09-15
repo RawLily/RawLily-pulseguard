@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import * as Sentry from '@sentry/nextjs';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
-
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
 export async function POST(req: NextRequest) {
@@ -16,7 +14,6 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (error) {
     console.error('[Stripe Webhook] Signature verification failed:', error);
-    Sentry.captureException(error, { tags: { component: 'stripe-webhook' } });
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
@@ -33,7 +30,6 @@ export async function POST(req: NextRequest) {
         break;
       case 'payment_intent.payment_failed':
         console.log('[Stripe] Payment failed:', event.data.object);
-        Sentry.captureMessage('Stripe payment failed', 'warning');
         break;
       default:
         console.log(`[Stripe] Unhandled event type: ${event.type}`);
@@ -42,9 +38,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     console.error('[Stripe Webhook] Error processing event:', error);
-    Sentry.captureException(error, {
-      tags: { component: 'stripe-webhook', eventType: event.type }
-    });
     return NextResponse.json({ error: 'Webhook error' }, { status: 500 });
   }
 }
