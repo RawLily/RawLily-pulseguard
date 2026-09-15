@@ -22,7 +22,6 @@ export function initializeSentry() {
       ],
 
       beforeSend(event, hint) {
-        // Filter out known non-critical errors
         if (
           hint.originalException instanceof Error &&
           (hint.originalException.message?.includes('NetworkError') ||
@@ -31,7 +30,6 @@ export function initializeSentry() {
         ) {
           return null;
         }
-
         return event;
       },
 
