@@ -1,14 +1,12 @@
 'use client';
 
-import { SessionProvider } from '@auth0/nextjs-auth0/client';
-import { Suspense } from 'react';
+import { UserProvider } from '@auth0/nextjs-auth0/client';
+import { ReactNode } from 'react';
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { children: ReactNode }) {
   return (
-    <SessionProvider>
-      <Suspense fallback={null}>
-        {children}
-      </Suspense>
-    </SessionProvider>
+    <UserProvider>
+      {children}
+    </UserProvider>
   );
 }
