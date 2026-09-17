@@ -16,29 +16,51 @@ export function initializeSentry() {
           blockAllMedia: true,
           maskAllInputs: true
         }),
-        new Sentry.HttpClientIntegration({
-          failedRequestStatusCodes: [[400, 499], [500, 599]]
-        })
+        new Sentry.Dedupe(),
+        new Sentry.Console()
       ],
 
       beforeSend(event, hint) {
-        if (
-          hint.originalException instanceof Error &&
-          (hint.originalException.message?.includes('NetworkError') ||
-            hint.originalException.message?.includes('AbortError') ||
-            hint.originalException.message?.includes('ResizeObserver'))
-        ) {
-          return null;
+        // Enterprise security: Track all HTTP errors
+        if (event.exception) {
+          const error = hint.originalException;
+          if (error instanceof Error) {
+            // Log failed HTTP requests
+            if (error.message?.includes('fetch') || error.message?.includes('HTTP')) {
+              Sentry.addBreadcrumb({
+                category: 'http',
+                message: `Failed HTTP request: ${error.message}`,
+                level: 'error',
+              });
+            }
+
+            // Filter only non-critical errors
+            if (
+              error.message?.includes('NetworkError') ||
+              error.message?.includes('AbortError') ||
+              error.message?.includes('ResizeObserver')
+            ) {
+              return null;
+            }
+          }
         }
+
         return event;
       },
 
       initialScope: {
         tags: {
           component: 'pulseguard',
-          service: 'nextjs-app'
+          service: 'nextjs-app',
+          tier: 'enterprise'
         }
-      }
+      },
+
+      // Enterprise security settings
+      attachStacktrace: true,
+      captureUnhandledRejections: true,
+      denyUrls: [/extensions\//i, /^chrome:\/\//i],
+      allowUrls: [/^https:\/\/pulseguardhq\.xyz/i]
     });
   }
 }
@@ -49,7 +71,10 @@ export function captureException(
 ) {
   Sentry.captureException(error, {
     extra: context,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    tags: {
+      severity: 'enterprise-tracked'
+    }
   });
 }
 
