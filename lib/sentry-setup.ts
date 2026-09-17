@@ -15,9 +15,7 @@ export function initializeSentry() {
           maskAllText: true,
           blockAllMedia: true,
           maskAllInputs: true
-        }),
-        new Sentry.Dedupe(),
-        new Sentry.Console()
+        })
       ],
 
       beforeSend(event, hint) {
