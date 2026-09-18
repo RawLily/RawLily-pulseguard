@@ -52,13 +52,7 @@ export function initializeSentry() {
           service: 'nextjs-app',
           tier: 'enterprise'
         }
-      },
-
-      // Enterprise security settings
-      attachStacktrace: true,
-      captureUnhandledRejections: true,
-      denyUrls: [/extensions\//i, /^chrome:\/\//i],
-      allowUrls: [/^https:\/\/pulseguardhq\.xyz/i]
+      }
     });
   }
 }
