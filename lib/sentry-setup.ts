@@ -63,7 +63,6 @@ export function captureException(
 ) {
   Sentry.captureException(error, {
     extra: context,
-    timestamp: new Date().toISOString(),
     tags: {
       severity: 'enterprise-tracked'
     }
