@@ -1,246 +1,171 @@
-'use client';
-
 import { useUser } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link';
+import { loadStripe } from '@stripe/stripe-js';
 
-export default function HomePage() {
-  const { user, isLoading } = useUser();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+export default function Home() {
+  const { user } = useUser();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white">
       {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-blue-600">
-            🛡️ PulseGuard
-          </div>
-          <div className="flex items-center gap-4">
-            {user ? (
-              <>
-                <span className="text-sm text-gray-600 hidden sm:inline">
-                  Welcome, {user.name || user.email || 'User'}
-                </span>
-                <Link 
-                  href="/dashboard" 
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                >
-                  Dashboard
-                </Link>
-                <a 
-                  href="/api/auth/logout" 
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 transition"
-                >
-                  Logout
-                </a>
-              </>
-            ) : (
-              <a
-                href="/api/auth/login"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Sign In
+      <nav className="flex justify-between items-center p-8 max-w-6xl mx-auto">
+        <div className="text-2xl font-bold text-blue-400">PulseGuard</div>
+        <div className="space-x-4">
+          {user ? (
+            <>
+              <Link href="/dashboard" className="px-4 py-2 text-white">
+                Dashboard
+              </Link>
+              <a href="/api/auth/logout" className="px-4 py-2 bg-slate-600 rounded hover:bg-slate-700">
+                Logout
               </a>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <a href="/api/auth/login" className="px-4 py-2 text-white">
+                Login
+              </a>
+              <a href="/api/auth/login" className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700">
+                Sign Up
+              </a>
+            </>
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            Real-Time Bug & Security Monitoring
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Monitor application bugs and security threats in real-time. Get instant alerts and comprehensive analytics.
-          </p>
-          <div className="flex justify-center gap-4 flex-wrap">
-            {!user && (
-              <>
-                <a
-                  href="/api/auth/login"
-                  className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-                >
-                  Get Started Free
-                </a>
-                <Link 
-                  href="#pricing" 
-                  className="px-8 py-3 border-2 border-gray-300 text-gray-900 rounded-lg hover:border-gray-400 transition font-medium"
-                >
-                  View Pricing
-                </Link>
-              </>
-            )}
-            {user && (
-              <Link 
-                href="/dashboard" 
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-              >
-                Go to Dashboard
-              </Link>
-            )}
-          </div>
+      <section className="max-w-6xl mx-auto px-8 py-20 text-center">
+        <h1 className="text-5xl font-bold mb-6">AI-Powered Bug & Threat Monitoring</h1>
+        <p className="text-xl text-slate-300 mb-8">
+          Detect bugs and security threats in your application automatically. Get daily reports and instant alerts.
+        </p>
+        <div className="space-x-4">
+          <a href="/api/auth/login" className="px-8 py-3 bg-blue-600 rounded-lg font-semibold hover:bg-blue-700 inline-block">
+            Get Started Free
+          </a>
+          <a href="#pricing" className="px-8 py-3 border border-slate-400 rounded-lg font-semibold hover:border-white inline-block">
+            View Pricing
+          </a>
         </div>
       </section>
 
       {/* Features */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-white rounded-lg my-12 shadow-md">
-        <h2 className="text-3xl font-bold text-center mb-12">Features</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
-            <div className="text-3xl mb-4">⚡</div>
-            <h3 className="text-xl font-bold mb-2">Real-Time Monitoring</h3>
-            <p className="text-gray-600">Instant bug and security alerts as they happen</p>
+      <section className="max-w-6xl mx-auto px-8 py-20">
+        <h2 className="text-4xl font-bold text-center mb-16">Features</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-slate-700 rounded-lg p-8">
+            <div className="text-4xl mb-4">🚨</div>
+            <h3 className="text-xl font-bold mb-2">Instant Alerts</h3>
+            <p className="text-slate-300">Get notified immediately when critical threats are detected in your application.</p>
           </div>
-          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
-            <div className="text-3xl mb-4">📊</div>
-            <h3 className="text-xl font-bold mb-2">Analytics & Insights</h3>
-            <p className="text-gray-600">Comprehensive dashboards and trend analysis</p>
+          <div className="bg-slate-700 rounded-lg p-8">
+            <div className="text-4xl mb-4">📊</div>
+            <h3 className="text-xl font-bold mb-2">Daily Reports</h3>
+            <p className="text-slate-300">Receive comprehensive daily digests of all bugs, errors, and security issues.</p>
           </div>
-          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
-            <div className="text-3xl mb-4">🔒</div>
-            <h3 className="text-xl font-bold mb-2">Enterprise Security</h3>
-            <p className="text-gray-600">Military-grade encryption and compliance</p>
-          </div>
-          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
-            <div className="text-3xl mb-4">🔗</div>
-            <h3 className="text-xl font-bold mb-2">API Integration</h3>
-            <p className="text-gray-600">Easy integration with your applications</p>
-          </div>
-          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
-            <div className="text-3xl mb-4">📧</div>
-            <h3 className="text-xl font-bold mb-2">Smart Notifications</h3>
-            <p className="text-gray-600">Customizable alerts via email and webhooks</p>
-          </div>
-          <div className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition">
-            <div className="text-3xl mb-4">🚀</div>
-            <h3 className="text-xl font-bold mb-2">Fast & Reliable</h3>
-            <p className="text-gray-600">99.9% uptime SLA with lightning-fast response</p>
+          <div className="bg-slate-700 rounded-lg p-8">
+            <div className="text-4xl mb-4">🔍</div>
+            <h3 className="text-xl font-bold mb-2">AI Detection</h3>
+            <p className="text-slate-300">Advanced algorithms detect SQL injection, XSS, DDoS, and other threats automatically.</p>
           </div>
         </div>
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-3xl font-bold text-center mb-12">Pricing</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="p-8 border border-gray-200 rounded-lg hover:shadow-lg transition">
-            <h3 className="text-xl font-bold mb-2">Starter</h3>
-            <p className="text-3xl font-bold text-blue-600 mb-4">$29<span className="text-sm text-gray-600">/month</span></p>
-            <ul className="space-y-2 text-gray-600 mb-6">
-              <li>✓ Up to 10,000 events/month</li>
-              <li>✓ Basic analytics</li>
+      <section id="pricing" className="max-w-6xl mx-auto px-8 py-20">
+        <h2 className="text-4xl font-bold text-center mb-16">Simple, Transparent Pricing</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Free Tier */}
+          <div className="bg-slate-700 rounded-lg p-8 border border-slate-600">
+            <h3 className="text-2xl font-bold mb-2">Free</h3>
+            <div className="text-4xl font-bold mb-4 text-blue-400">$0</div>
+            <p className="text-slate-300 mb-8">50 events/month</p>
+            <ul className="space-y-2 mb-8 text-slate-300">
+              <li>✓ Daily email reports</li>
+              <li>✓ Threat detection</li>
+              <li>✗ Priority support</li>
+            </ul>
+            <button className="w-full px-4 py-2 bg-slate-600 rounded hover:bg-slate-700">Get Started</button>
+          </div>
+
+          {/* Starter Tier */}
+          <div className="bg-blue-900 rounded-lg p-8 border border-blue-600 transform scale-105">
+            <div className="text-sm font-bold text-blue-300 mb-2">MOST POPULAR</div>
+            <h3 className="text-2xl font-bold mb-2">Starter</h3>
+            <div className="text-4xl font-bold mb-2 text-blue-400">$29.99</div>
+            <div className="text-sm text-slate-300 mb-4">per month (5,000 events)</div>
+            <ul className="space-y-2 mb-8 text-slate-300">
+              <li>✓ 5,000 events/month</li>
+              <li>✓ Daily reports + instant alerts</li>
               <li>✓ Email support</li>
-              <li>✓ 1 team member</li>
             </ul>
-            {!user ? (
-              <a 
-                href="/api/auth/login" 
-                className="block text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Get Started
-              </a>
-            ) : (
-              <Link 
-                href="/checkout?plan=starter" 
-                className="block text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Subscribe
-              </Link>
-            )}
+            <CheckoutButton priceId="price_1QaKpLHWcpsCOmkxBMxL5lnV" />
           </div>
 
-          <div className="p-8 border-2 border-blue-600 rounded-lg relative hover:shadow-lg transition">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-              Popular
-            </div>
-            <h3 className="text-xl font-bold mb-2">Professional</h3>
-            <p className="text-3xl font-bold text-blue-600 mb-4">$99<span className="text-sm text-gray-600">/month</span></p>
-            <ul className="space-y-2 text-gray-600 mb-6">
-              <li>✓ Up to 100,000 events/month</li>
-              <li>✓ Advanced analytics</li>
-              <li>✓ Priority email support</li>
-              <li>✓ 5 team members</li>
-              <li>✓ Custom integrations</li>
+          {/* Pro Tier */}
+          <div className="bg-slate-700 rounded-lg p-8 border border-slate-600">
+            <h3 className="text-2xl font-bold mb-2">Pro</h3>
+            <div className="text-4xl font-bold mb-2 text-blue-400">$299.99</div>
+            <div className="text-sm text-slate-300 mb-4">per year (50,000 events)</div>
+            <ul className="space-y-2 mb-8 text-slate-300">
+              <li>✓ 50,000 events/month</li>
+              <li>✓ Priority alerts</li>
+              <li>✓ Phone support</li>
             </ul>
-            {!user ? (
-              <a 
-                href="/api/auth/login" 
-                className="block text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Get Started
-              </a>
-            ) : (
-              <Link 
-                href="/checkout?plan=professional" 
-                className="block text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Subscribe
-              </Link>
-            )}
-          </div>
-
-          <div className="p-8 border border-gray-200 rounded-lg hover:shadow-lg transition">
-            <h3 className="text-xl font-bold mb-2">Enterprise</h3>
-            <p className="text-3xl font-bold text-blue-600 mb-4">Custom</p>
-            <ul className="space-y-2 text-gray-600 mb-6">
-              <li>✓ Unlimited events</li>
-              <li>✓ Full analytics suite</li>
-              <li>✓ 24/7 phone support</li>
-              <li>✓ Unlimited team members</li>
-              <li>✓ Custom SLA</li>
-            </ul>
-            <a 
-              href="mailto:sales@pulseguardhq.xyz" 
-              className="block text-center py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
-            >
-              Contact Sales
-            </a>
+            <CheckoutButton priceId="price_1QaKpLHWcpsCOmkxCXxZ6mOp" />
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+      <footer className="bg-slate-900 border-t border-slate-700 py-8">
+        <div className="max-w-6xl mx-auto px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h4 className="text-white font-bold mb-4">PulseGuard</h4>
-              <p className="text-sm">Enterprise bug and security monitoring for modern applications.</p>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="#pricing" className="hover:text-white transition">Pricing</Link></li>
+              <h4 className="font-bold mb-4">Product</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><Link href="#pricing">Pricing</Link></li>
+                <li><a href="https://docs.pulseguardhq.xyz">Docs</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/privacy" className="hover:text-white transition">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition">Terms</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="mailto:support@pulseguardhq.xyz" className="hover:text-white transition">Email</a></li>
+              <h4 className="font-bold mb-4">Company</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><a href="/terms">Terms</a></li>
+                <li><a href="/privacy">Privacy</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 text-center text-sm">
-            <p>&copy; 2026 PulseGuard. All rights reserved.</p>
+          <div className="border-t border-slate-700 pt-8 text-center text-slate-400">
+            <p>&copy; 2026 PulseGuard. All rights reserved. By JLR AI Software Company.</p>
           </div>
         </div>
       </footer>
     </div>
+  );
+}
+
+function CheckoutButton({ priceId }: { priceId: string }) {
+  const handleCheckout = async () => {
+    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+    if (!stripe) return;
+
+    const response = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId }),
+    });
+
+    const session = await response.json();
+    await stripe.redirectToCheckout({ sessionId: session.id });
+  };
+
+  return (
+    <button
+      onClick={handleCheckout}
+      className="w-full px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 font-semibold"
+    >
+      Start Free Trial
+    </button>
   );
 }
