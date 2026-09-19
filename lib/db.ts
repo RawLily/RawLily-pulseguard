@@ -1,10 +1,15 @@
-import { Pool, PoolClient } from '@neondatabase/serverless';
+import { Pool, PoolClient, QueryResult } from '@neondatabase/serverless';
+import { z } from 'zod';
+
+// Validate database URL
+const DatabaseUrlSchema = z.string().url().includes('postgresql');
+const dbUrl = DatabaseUrlSchema.parse(process.env.DATABASE_URL);
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: dbUrl,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000
+  connectionTimeoutMillis: 2000,
 });
 
 pool.on('error', (err) => {
@@ -15,16 +20,22 @@ pool.on('connect', () => {
   console.log('[Database] New connection established');
 });
 
-export async function query(text: string, params?: unknown[]) {
+export async function query<T = any>(
+  text: string,
+  params?: unknown[]
+): Promise<QueryResult<T>> {
   const start = Date.now();
   try {
-    const result = await pool.query(text, params);
+    const result = await pool.query<T>(text, params);
     const duration = Date.now() - start;
-    
+
     if (duration > 1000) {
-      console.warn(`[Database] Slow query (${duration}ms):`, text.substring(0, 100));
+      console.warn(
+        `[Database] Slow query (${duration}ms):`,
+        text.substring(0, 100)
+      );
     }
-    
+
     return result;
   } catch (error) {
     console.error('[Database] Query error:', error);
@@ -41,7 +52,25 @@ export async function getClient(): Promise<PoolClient> {
   }
 }
 
-export async function close() {
+export async function transaction<T>(
+  callback: (client: PoolClient) => Promise<T>
+): Promise<T> {
+  const client = await getClient();
+  try {
+    await client.query('BEGIN');
+    const result = await callback(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('[Database] Transaction rolled back:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+export async function close(): Promise<void> {
   try {
     await pool.end();
     console.log('[Database] Pool closed');
@@ -65,6 +94,8 @@ export function getPoolStats() {
   return {
     totalCount: pool.totalCount,
     idleCount: pool.idleCount,
-    waitingCount: pool.waitingCount
+    waitingCount: pool.waitingCount,
   };
 }
+
+export default pool;
