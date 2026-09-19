@@ -1,0 +1,465 @@
+================================================================================
+                      PULSEGUARD SETUP INSTRUCTIONS
+                       Enterprise SaaS Deployment
+================================================================================
+
+VERSION: 1.0.0
+LAST UPDATED: September 2026
+AUTHOR: JLR AI Software Company
+
+================================================================================
+                            TABLE OF CONTENTS
+================================================================================
+
+1. Prerequisites
+2. GitHub Upload (Web Interface)
+3. Vercel Deployment
+4. Environment Variables Setup
+5. Stripe Webhook Configuration
+6. Verification Checklist
+7. Troubleshooting
+8. Support
+
+================================================================================
+                          1. PREREQUISITES
+================================================================================
+
+Before starting, ensure you have:
+
+✓ GitHub account (https://github.com)
+✓ Vercel account (https://vercel.com)
+✓ Auth0 tenant configured with callback URLs
+✓ Stripe account with products and prices created
+✓ Resend account with domain verified
+✓ Sentry project created
+✓ Neon PostgreSQL database created
+✓ All environment variables ready
+
+REQUIRED FILES:
+  - pulseguard-complete.tar.gz (or individual files from GitHub)
+  - .env.example (reference for variables)
+  - .env.local.example (reference for dev variables)
+
+================================================================================
+                    2. GITHUB UPLOAD (WEB INTERFACE)
+================================================================================
+
+OPTION A: FILE-BY-FILE UPLOAD (15-20 minutes)
+─────────────────────────────────────────────
+
+1. Navigate to: https://github.com/RawLily/RawLily-pulseguard
+
+2. Click "Add file" → "Create new file"
+
+3. Create each file in this order:
+
+   ✓ Configuration (5 files)
+     - package.json
+     - next.config.js
+     - tsconfig.json
+     - tailwind.config.js
+     - postcss.config.js
+
+   ✓ Environment (3 files)
+     - .env.example
+     - .env.local.example
+     - .gitignore
+
+   ✓ Documentation (1 file)
+     - README.md
+
+   ✓ LIB FILES (7 files)
+     - lib/db.ts
+     - lib/email.ts
+     - lib/sentry-setup.ts
+     - lib/security.ts
+     - lib/rate-limit.ts
+     - lib/stripe-client.ts
+     - lib/auth0-utils.ts
+
+   ✓ APP FILES (11 files)
+     - app/page.tsx
+     - app/layout.tsx
+     - app/providers.tsx
+     - app/globals.css
+     - app/api/auth/[auth0]/route.ts
+     - app/api/stats/route.ts
+     - app/api/ingest/route.ts
+     - app/api/checkout/route.ts
+     - app/api/webhooks/stripe/route.ts
+     - app/dashboard/layout.tsx
+     - app/dashboard/page.tsx
+
+4. For each file:
+   - Click "Add file" → "Create new file"
+   - Paste the filename in the name field
+   - Paste the code into the editor
+   - Click "Commit changes"
+   - Add commit message: "Add [filename]"
+
+5. Total commits: ~27 (one per file)
+
+OPTION B: BULK UPLOAD (5-10 minutes) ⭐ RECOMMENDED
+────────────────────────────────────────────────
+
+1. Extract pulseguard-complete.tar.gz on your computer:
+   tar -xzf pulseguard-complete.tar.gz
+
+2. Navigate to: https://github.com/RawLily/RawLily-pulseguard
+
+3. Click "Add file" → "Upload files"
+
+4. Drag & drop the extracted pulseguard/ folder
+
+5. GitHub auto-detects the folder structure and files
+
+6. Click "Commit changes"
+
+7. All 27 files uploaded in a single commit ✓
+
+OPTION C: GIT CLI (Command line)
+─────────────────────────────────
+
+If using Termux or Git CLI:
+
+$ git clone https://github.com/RawLily/RawLily-pulseguard.git
+$ cd RawLily-pulseguard
+$ tar -xzf pulseguard-complete.tar.gz
+$ git add .
+$ git commit -m "Add PulseGuard enterprise files"
+$ git push origin main
+
+================================================================================
+                      3. VERCEL DEPLOYMENT
+================================================================================
+
+STEP 1: Connect GitHub Repository
+──────────────────────────────────
+
+1. Go to https://vercel.com/dashboard
+2. Click "Add New Project"
+3. Select "Import from Git"
+4. Search for "RawLily-pulseguard"
+5. Click "Import"
+6. Vercel auto-detects Next.js framework ✓
+
+STEP 2: Configure Project Settings
+────────────────────────────────────
+
+1. Enter Project Name: "pulseguard"
+2. Root Directory: ./ (default)
+3. Framework Preset: Next.js (auto-detected)
+4. Build Command: npm run build
+5. Output Directory: .next
+
+STEP 3: Add Environment Variables
+──────────────────────────────────
+
+Add these variables in Vercel project settings:
+
+✓ AUTH0_SECRET
+✓ AUTH0_BASE_URL
+✓ AUTH0_ISSUER_BASE_URL
+✓ AUTH0_CLIENT_ID
+✓ AUTH0_CLIENT_SECRET
+✓ DATABASE_URL
+✓ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+✓ STRIPE_SECRET_KEY
+✓ STRIPE_WEBHOOK_SECRET
+✓ STRIPE_PRICE_ID_MONTHLY
+✓ STRIPE_PRICE_ID_YEARLY
+✓ RESEND_API_KEY
+✓ NEXT_PUBLIC_SENTRY_DSN
+✓ NEXT_PUBLIC_APP_URL
+✓ NODE_ENV (set to "production")
+✓ ENCRYPTION_KEY
+✓ JWT_SECRET
+
+STEP 4: Deploy
+───────────────
+
+1. Click "Deploy"
+2. Wait 2-3 minutes for build to complete
+3. Once complete, visit your Vercel URL: https://pulseguard-[random].vercel.app
+4. Verify homepage loads with:
+   ✓ Heartbeat SVG logo
+   ✓ "Pulse" (white) + "Guard" (green) text
+   ✓ Three green security badges
+   ✓ Free / Monthly / Yearly pricing cards
+
+STEP 5: Configure Custom Domain
+────────────────────────────────
+
+1. In Vercel: Settings → Domains
+2. Add "pulseguardhq.xyz"
+3. Follow DNS configuration instructions
+4. Update Auth0 callback URLs to production domain
+5. Wait 24-48 hours for DNS propagation
+
+================================================================================
+                  4. ENVIRONMENT VARIABLES SETUP
+================================================================================
+
+REQUIRED VARIABLES:
+───────────────────
+
+Auth0:
+  AUTH0_SECRET ........................ Generate: openssl rand -hex 32
+  AUTH0_BASE_URL ...................... https://pulseguardhq.xyz
+  AUTH0_ISSUER_BASE_URL ............... https://YOUR-TENANT.auth0.com
+  AUTH0_CLIENT_ID ..................... (from Auth0 dashboard)
+  AUTH0_CLIENT_SECRET ................. (from Auth0 dashboard)
+
+Database:
+  DATABASE_URL ........................ postgresql://user:pass@host/db
+
+Stripe:
+  STRIPE_SECRET_KEY ................... sk_live_XXXXX (production)
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY .. pk_live_XXXXX (production)
+  STRIPE_WEBHOOK_SECRET ............... whsec_XXXXX (production)
+  STRIPE_PRICE_ID_MONTHLY ............. price_XXXXX ($29.99/mo)
+  STRIPE_PRICE_ID_YEARLY .............. price_XXXXX ($299.99/yr)
+
+Email:
+  RESEND_API_KEY ....................... re_XXXXX
+
+Error Tracking:
+  NEXT_PUBLIC_SENTRY_DSN ............... https://xxxxx@sentry.io/xxxxx
+
+Application:
+  NEXT_PUBLIC_APP_URL .................. https://pulseguardhq.xyz
+  NODE_ENV ............................. production
+
+Security:
+  ENCRYPTION_KEY ....................... (32-char hex string)
+  JWT_SECRET ........................... (32-char hex string)
+
+OPTIONAL VARIABLES:
+────────────────────
+
+  NEXT_PUBLIC_GA_ID .................... G-XXXXX (Google Analytics)
+  SLACK_WEBHOOK_URL .................... https://hooks.slack.com/...
+  SENTRY_ENVIRONMENT ................... production
+
+================================================================================
+                 5. STRIPE WEBHOOK CONFIGURATION
+================================================================================
+
+IMPORTANT: Set up Stripe webhooks AFTER deployment
+
+STEP 1: Get Webhook Signing Secret
+─────────────────────────────────
+
+1. Go to https://dashboard.stripe.com/webhooks
+2. Click "Add an endpoint"
+3. Endpoint URL: https://pulseguardhq.xyz/api/webhooks/stripe
+4. Events to send:
+   ✓ customer.subscription.created
+   ✓ customer.subscription.updated
+   ✓ customer.subscription.deleted
+   ✓ invoice.payment_succeeded
+   ✓ invoice.payment_failed
+5. Click "Add endpoint"
+6. Copy the "Signing secret"
+
+STEP 2: Add to Vercel
+──────────────────────
+
+1. Go to Vercel project settings → Environment Variables
+2. Add variable: STRIPE_WEBHOOK_SECRET = whsec_XXXXX
+3. Redeploy: Click "Deployments" → latest → "Redeploy"
+
+STEP 3: Test Webhook
+─────────────────────
+
+1. In Stripe dashboard, click the webhook endpoint
+2. Click "Send test event"
+3. Select "customer.subscription.created"
+4. Should see Status: 200 ✓
+
+================================================================================
+                    6. VERIFICATION CHECKLIST
+================================================================================
+
+After deployment, verify these work:
+
+HOMEPAGE:
+  [ ] Heartbeat SVG logo renders
+  [ ] "Pulse" (white) + "Guard" (green) text
+  [ ] Three security badges (SSL A+, Security A, Rate Limited)
+  [ ] Free tier: $0/50 events
+  [ ] Monthly tier: $29.99/unlimited
+  [ ] Yearly tier: $299.99/unlimited (BEST VALUE badge)
+  [ ] All buttons clickable
+
+AUTHENTICATION:
+  [ ] "Sign Up" button redirects to Auth0
+  [ ] Auth0 login page loads
+  [ ] Login works and redirects to dashboard
+  [ ] Dashboard shows user email
+  [ ] Logout works and returns to homepage
+
+DASHBOARD:
+  [ ] Dashboard loads after login
+  [ ] Stats cards display (Events, Threats, Status)
+  [ ] API integration instructions visible
+  [ ] "Start monitoring" buttons work
+
+CHECKOUT:
+  [ ] Click "Start monitoring" on Monthly tier
+  [ ] Redirects to Stripe Checkout
+  [ ] Test card: 4242 4242 4242 4242
+  [ ] Expiry: Any future date
+  [ ] CVC: Any 3 digits
+  [ ] Complete checkout
+  [ ] Redirected to dashboard with session_id in URL
+
+EMAILS:
+  [ ] Verify Resend domain in Resend dashboard
+  [ ] Test email send from Resend UI
+  [ ] Check inbox and spam folder
+
+ERROR TRACKING:
+  [ ] Verify Sentry project receiving events
+  [ ] Check Sentry dashboard for captured errors
+
+DATABASE:
+  [ ] Connect to Neon: psql <DATABASE_URL>
+  [ ] Verify tables created: \dt
+  [ ] Query users: SELECT * FROM users;
+
+================================================================================
+                         7. TROUBLESHOOTING
+================================================================================
+
+DEPLOYMENT FAILED
+──────────────────
+
+Error: "Build failed"
+→ Check Vercel build logs for specific error
+→ Verify all environment variables are set
+→ Ensure Node.js version is 24.x
+→ Clear build cache: Settings → "Rebuild cache" → "Clear"
+
+Error: "Cannot find module '@auth0/nextjs-auth0'"
+→ Run: npm install
+→ Check package.json dependencies
+→ Ensure all dependencies are listed
+
+HOMEPAGE NOT LOADING
+─────────────────────
+
+Problem: Logo not rendering
+→ Check /public folder exists and has assets
+→ Verify SVG syntax in app/page.tsx
+→ Check browser console for errors
+
+Problem: Styling broken (colors off)
+→ Verify tailwind.config.js is correct
+→ Clear browser cache: Cmd+Shift+Delete
+→ Check Tailwind CSS in globals.css
+
+AUTH0 REDIRECT FAILS
+─────────────────────
+
+Error: "Invalid callback_url"
+→ Add to Auth0 Dashboard → Settings → Callback URLs:
+   https://pulseguardhq.xyz/api/auth/callback
+
+Error: "Unauthorized" on login
+→ Verify AUTH0_CLIENT_ID and AUTH0_CLIENT_SECRET
+→ Check AUTH0_BASE_URL matches domain exactly
+→ Verify application type is "Single Page Application"
+
+STRIPE CHECKOUT NOT WORKING
+─────────────────────────────
+
+Error: "Price not found"
+→ Verify STRIPE_PRICE_ID_MONTHLY and STRIPE_PRICE_ID_YEARLY exist
+→ Ensure prices are in USD
+→ Check price IDs start with "price_"
+
+Error: "Invalid publishable key"
+→ Use pk_live_ in production (not pk_test_)
+→ Ensure NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set in Vercel
+→ Redeploy after updating variables
+
+WEBHOOK NOT TRIGGERING
+───────────────────────
+
+Problem: Stripe webhook endpoint not receiving events
+→ Verify endpoint URL: https://pulseguardhq.xyz/api/webhooks/stripe
+→ Check STRIPE_WEBHOOK_SECRET is correct in Vercel
+→ Test webhook in Stripe dashboard
+→ Check Vercel logs for incoming requests
+
+DATABASE CONNECTION FAILS
+──────────────────────────
+
+Error: "ECONNREFUSED"
+→ Verify DATABASE_URL is correct
+→ Ensure Neon database is active
+→ Check IP whitelist in Neon (allow all for testing)
+→ Test connection locally first
+
+================================================================================
+                            8. SUPPORT
+================================================================================
+
+Need help? Try these resources:
+
+Documentation:
+  - README.md (comprehensive guide)
+  - .env.example (environment variables)
+  - Next.js Docs: https://nextjs.org/docs
+  - Vercel Docs: https://vercel.com/docs
+
+Contact:
+  - Email: support@pulseguardhq.xyz
+  - GitHub Issues: https://github.com/RawLily/RawLily-pulseguard/issues
+
+Status Pages:
+  - Vercel Status: https://www.vercel-status.com
+  - Stripe Status: https://status.stripe.com
+  - Auth0 Status: https://status.auth0.com
+
+================================================================================
+                          QUICK REFERENCE
+================================================================================
+
+GitHub Repo:
+  https://github.com/RawLily/RawLily-pulseguard
+
+Production URLs:
+  App: https://pulseguardhq.xyz
+  API: https://pulseguardhq.xyz/api
+
+Key Credentials (Vercel):
+  - All environment variables set ✓
+  - Database connected ✓
+  - Auth0 configured ✓
+  - Stripe configured ✓
+  - Resend configured ✓
+  - Sentry configured ✓
+
+Deployment Time: 5-30 minutes
+Setup Time: 1-2 hours (including external service configuration)
+
+================================================================================
+                        DEPLOYMENT COMPLETE! 🎉
+================================================================================
+
+Your PulseGuard instance is live and ready for production use.
+
+Next Steps:
+  1. Monitor Sentry for errors
+  2. Track Stripe transactions
+  3. Monitor database growth
+  4. Set up backups and monitoring
+  5. Promote to users
+
+Questions? Check README.md or contact support.
+
+Happy monitoring! 🛡️
+
+================================================================================
