@@ -45,9 +45,13 @@ yarn-error.log*
 .turbo
 .vercel
 .env*.local
+.eslintcache
 pnpm-lock.yaml
 package-lock.json
 
 # Production
 build/
 dist/
+
+# Certificates
+*.pem
