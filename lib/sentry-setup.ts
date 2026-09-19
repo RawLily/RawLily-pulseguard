@@ -1,9 +1,14 @@
 import * as Sentry from '@sentry/nextjs';
+import { z } from 'zod';
+
+// Validate Sentry DSN
+const SentryDsnSchema = z.string().startsWith('https://').optional();
+const sentryDsn = SentryDsnSchema.parse(process.env.NEXT_PUBLIC_SENTRY_DSN);
 
 export function initializeSentry() {
-  if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
+  if (process.env.NODE_ENV === 'production' && sentryDsn) {
     Sentry.init({
-      dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+      dsn: sentryDsn,
       environment: process.env.NODE_ENV || 'production',
       tracesSampleRate: 0.1,
       replaysSessionSampleRate: 0.1,
@@ -61,6 +66,8 @@ export function captureException(
   error: Error,
   context: Record<string, unknown> = {}
 ) {
+  if (!sentryDsn) return;
+
   Sentry.captureException(error, {
     extra: context,
     tags: {
@@ -73,6 +80,8 @@ export function captureMessage(
   message: string,
   level: 'fatal' | 'error' | 'warning' | 'info' | 'debug' = 'error'
 ) {
+  if (!sentryDsn) return;
+
   Sentry.captureMessage(message, level);
 }
 
@@ -81,6 +90,8 @@ export function addBreadcrumb(
   data: Record<string, unknown> = {},
   category: string = 'event'
 ) {
+  if (!sentryDsn) return;
+
   Sentry.addBreadcrumb({
     message,
     data,
@@ -90,6 +101,8 @@ export function addBreadcrumb(
 }
 
 export function setUserContext(userId: string, email: string, name?: string) {
+  if (!sentryDsn) return;
+
   Sentry.setUser({
     id: userId,
     email,
@@ -98,9 +111,13 @@ export function setUserContext(userId: string, email: string, name?: string) {
 }
 
 export function clearUserContext() {
+  if (!sentryDsn) return;
+
   Sentry.setUser(null);
 }
 
 export function setContext(name: string, context: Record<string, unknown>) {
+  if (!sentryDsn) return;
+
   Sentry.setContext(name, context);
 }
