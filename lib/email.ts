@@ -1,7 +1,12 @@
 import { Resend } from 'resend';
 import * as Sentry from '@sentry/nextjs';
+import { z } from 'zod';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Validate API key
+const ResendKeySchema = z.string().startsWith('re_');
+const resendKey = ResendKeySchema.parse(process.env.RESEND_API_KEY);
+
+const resend = new Resend(resendKey);
 const FROM_EMAIL = 'noreply@pulseguardhq.xyz';
 const SUPPORT_EMAIL = 'support@pulseguardhq.xyz';
 
@@ -21,7 +26,7 @@ export async function sendEmail({
   replyTo = SUPPORT_EMAIL
 }: EmailOptions): Promise<{ success: boolean; error?: string; messageId?: string }> {
   try {
-    if (!process.env.RESEND_API_KEY) {
+    if (!resendKey) {
       throw new Error('RESEND_API_KEY not configured');
     }
 
@@ -37,6 +42,13 @@ export async function sendEmail({
     if (result.error) {
       throw new Error(result.error.message);
     }
+
+    Sentry.addBreadcrumb({
+      message: 'Email sent',
+      category: 'email',
+      level: 'info',
+      data: { messageId: result.data?.id, to: Array.isArray(to) ? to[0] : to }
+    });
 
     return { success: true, messageId: result.data?.id };
   } catch (error) {
@@ -193,6 +205,63 @@ export async function sendPaymentReceiptEmail(
   return sendEmail({
     to: email,
     subject: 'Payment Confirmation - PulseGuard Subscription',
+    html
+  });
+}
+
+export async function sendDailyDigestEmail(
+  email: string,
+  eventCount: number,
+  threatCount: number,
+  criticalCount: number
+) {
+  const html = `
+    <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h1 style="color: #3b82f6;">📊 Daily Digest - PulseGuard</h1>
+          <p>Here's your PulseGuard activity summary for today:</p>
+
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <tr style="background-color: #f3f4f6;">
+              <td style="padding: 10px; font-weight: bold;">Total Events:</td>
+              <td style="padding: 10px;">${eventCount}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold;">Threats Detected:</td>
+              <td style="padding: 10px; color: #dc2626;">${threatCount}</td>
+            </tr>
+            <tr style="background-color: #f3f4f6;">
+              <td style="padding: 10px; font-weight: bold;">Critical Issues:</td>
+              <td style="padding: 10px; color: #991b1b; font-weight: bold;">${criticalCount}</td>
+            </tr>
+          </table>
+
+          <div style="margin-top: 30px;">
+            <a href="https://pulseguardhq.xyz/dashboard" style="
+              display: inline-block;
+              background-color: #3b82f6;
+              color: white;
+              padding: 12px 24px;
+              text-decoration: none;
+              border-radius: 4px;
+              font-weight: bold;
+            ">
+              View Full Dashboard
+            </a>
+          </div>
+
+          <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #999;">
+            © 2026 PulseGuard. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: '📊 Daily Digest - PulseGuard Activity Summary',
     html
   });
 }
