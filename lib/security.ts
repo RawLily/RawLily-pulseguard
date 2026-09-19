@@ -1,10 +1,13 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '';
+// Validate encryption key
+const EncryptionKeySchema = z.string().min(64);
+const ENCRYPTION_KEY = EncryptionKeySchema.parse(process.env.ENCRYPTION_KEY || '');
 
 if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length < 64) {
-  console.error('[Security] ENCRYPTION_KEY not properly configured');
+  console.error('[Security] ENCRYPTION_KEY not properly configured (must be 64+ hex chars)');
 }
 
 export function encrypt(text: string): string {
@@ -97,6 +100,27 @@ export function generateToken(length: number = 32): string {
   return crypto.randomBytes(length).toString('hex');
 }
 
+export function validateSignature(
+  payload: string,
+  signature: string,
+  secret: string
+): boolean {
+  try {
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex');
+
+    return crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expectedSignature)
+    );
+  } catch (error) {
+    console.error('[Security] Signature validation error:', error);
+    return false;
+  }
+}
+
 export function corsMiddleware(req: NextRequest, allowedOrigins: string[] = []) {
   const origin = req.headers.get('origin') || '';
   const isAllowed = allowedOrigins.includes(origin) || allowedOrigins.includes('*');
@@ -130,20 +154,4 @@ export function getClientIP(req: NextRequest): string {
 }
 
 export function isSuspiciousInput(input: string): boolean {
-  if (!input || typeof input !== 'string') return false;
-  
-  const suspiciousPatterns = [
-    /(<script|<iframe|javascript:|onerror=|onload=|onclick=)/i,
-    /(union|select|insert|update|delete|drop|create|alter|exec|execute)/i,
-    /(\.\.|\/\/|\\\\)/,
-    /(\x00|\x0d|\x0a)/,
-    /%27|%22|--|;/  // SQL injection
-  ];
-
-  return suspiciousPatterns.some(pattern => pattern.test(input));
-}
-
-export function validateUUID(uuid: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(uuid);
-}
+  if (!input || typeof input !== 'string') ret
