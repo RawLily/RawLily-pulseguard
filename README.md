@@ -1,3 +1,8 @@
+# 📖 **FULL CORRECTED README.MD**
+
+Copy this entire code and replace your current README.md:
+
+```markdown
 # PulseGuard - Enterprise Bug & Security Monitoring SaaS
 
 🛡️ **Real-time threat detection and bug monitoring for modern applications**
@@ -11,7 +16,7 @@ Monitor, track, and respond to application bugs and security threats instantly. 
 - ✅ **Real-time Bug Monitoring** - Instant alerts when errors occur in your applications
 - ✅ **Security Threat Detection** - Intelligent threat analysis with severity levels
 - ✅ **User Authentication** - Enterprise-grade auth via Auth0
-- ✅ **Subscription Billing** - Stripe payment processing (monthly/yearly plans)
+- ✅ **Subscription Billing** - Stripe payment processing (free/monthly/yearly plans)
 - ✅ **Email Notifications** - Reliable email delivery via Resend
 - ✅ **Error Tracking** - Comprehensive error logging with Sentry
 - ✅ **RESTful API** - Easy integration for any application
@@ -25,13 +30,13 @@ Monitor, track, and respond to application bugs and security threats instantly. 
 
 | Component | Technology | Version |
 |-----------|-----------|---------|
-| Framework | Next.js 14 (App Router) | 14.2.3+ |
+| Framework | Next.js 14 (App Router) | 14.2.5+ |
 | Language | TypeScript | 5.4.5+ |
 | Database | PostgreSQL (Neon) | Latest |
 | Authentication | Auth0 | v3.5.0+ |
 | Payments | Stripe | v16.11.0+ |
 | Email | Resend | v3.2.0+ |
-| Error Tracking | Sentry | v7.119.0+ |
+| Error Tracking | Sentry | v8.0.0+ |
 | Styling | Tailwind CSS | v3.4.3+ |
 | Hosting | Vercel | Latest |
 
@@ -41,7 +46,7 @@ Monitor, track, and respond to application bugs and security threats instantly. 
 
 Before getting started, ensure you have:
 
-- **Node.js** 18.17 or higher
+- **Node.js** 24.x or higher
 - **npm** 10.0 or higher
 - **PostgreSQL** database (via Neon)
 - **Auth0** account and tenant
@@ -103,12 +108,27 @@ CREATE TABLE events (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Subscriptions table
+CREATE TABLE subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+  stripe_subscription_id VARCHAR(255) UNIQUE,
+  stripe_customer_id VARCHAR(255),
+  plan VARCHAR(50),
+  status VARCHAR(50),
+  current_period_end TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for performance
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_auth0_id ON users(auth0_id);
 CREATE INDEX idx_events_user_id ON events(user_id);
 CREATE INDEX idx_events_created_at ON events(created_at);
 CREATE INDEX idx_events_severity ON events(severity);
+CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
+CREATE INDEX idx_subscriptions_stripe_id ON subscriptions(stripe_subscription_id);
 ```
 
 ### 5. Run Development Server
@@ -152,12 +172,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
    - **Secret Key** → `STRIPE_SECRET_KEY`
 
 3. Create **Products**:
-   - Starter: $29/month
-   - Pro: $99/month
+   - **Free**: $0/month (50 events/month, no card required)
+   - **Monthly**: $29.99/month (unlimited events)
+   - **Yearly**: $299.99/year (unlimited events) - **BEST VALUE**
 
 4. Copy **Price IDs**:
-   - `STRIPE_PRICE_ID_MONTHLY`
-   - `STRIPE_PRICE_ID_YEARLY`
+   - `STRIPE_PRICE_ID_MONTHLY` (Monthly plan $29.99/mo)
+   - `STRIPE_PRICE_ID_YEARLY` (Yearly plan $299.99/yr)
+   - Free tier uses no price ID (subscription not required)
 
 5. Add **Webhook Endpoint**:
    - URL: `https://pulseguardhq.xyz/api/webhooks/stripe`
@@ -174,6 +196,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 1. Go to [Resend Dashboard](https://resend.com)
 2. Get your **API Key** → `RESEND_API_KEY`
 3. Verify your domain for sending emails
+4. Set up SPF, DKIM, and DMARC records for email authentication
 
 ### Sentry Setup
 
@@ -181,9 +204,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 2. Create a new project (Next.js)
 3. Copy:
    - **DSN** → `NEXT_PUBLIC_SENTRY_DSN`
-   - **Organization** → `SENTRY_ORG`
-   - **Project** → `SENTRY_PROJECT`
-   - **Auth Token** → `SENTRY_AUTH_TOKEN`
+   - **Organization** → `SENTRY_ORG` (optional)
+   - **Project** → `SENTRY_PROJECT` (optional)
 
 ---
 
@@ -192,35 +214,43 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 Create `.env.local` with these variables:
 
 ```env
-# Auth0
+# Auth0 Configuration
 AUTH0_SECRET=your-secret-key-here-minimum-32-characters
 AUTH0_BASE_URL=https://pulseguardhq.xyz
 AUTH0_ISSUER_BASE_URL=https://your-tenant.auth0.com
 AUTH0_CLIENT_ID=your-auth0-client-id
 AUTH0_CLIENT_SECRET=your-auth0-client-secret
 
-# Database
-DATABASE_URL=postgresql://user:password@host/database
+# Database Configuration (Neon PostgreSQL)
+DATABASE_URL=postgresql://user:password@ep-xxx.neon.tech/pulseguard?sslmode=require
 
-# Stripe (Use pk_live and sk_live for production)
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_your_key
-STRIPE_SECRET_KEY=sk_live_your_key
+# Stripe Configuration (Use pk_live and sk_live for production)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_your_key or pk_test_your_key
+STRIPE_SECRET_KEY=sk_live_your_key or sk_test_your_key
 STRIPE_WEBHOOK_SECRET=whsec_your_secret
 STRIPE_PRICE_ID_MONTHLY=price_xxxxx
 STRIPE_PRICE_ID_YEARLY=price_xxxxx
 
-# Email
+# Email Configuration (Resend)
 RESEND_API_KEY=re_your_key
 
-# Error Tracking
-NEXT_PUBLIC_SENTRY_DSN=https://xxxxx@sentry.io/xxxxx
-SENTRY_ORG=your-org
-SENTRY_PROJECT=pulseguard
-SENTRY_AUTH_TOKEN=your-token
+# Error Tracking (Sentry)
+NEXT_PUBLIC_SENTRY_DSN=https://xxxxx@xxxxx.ingest.sentry.io/xxxxx
+SENTRY_ENVIRONMENT=production
 
-# Application
+# Application Configuration
 NEXT_PUBLIC_APP_URL=https://pulseguardhq.xyz
 NODE_ENV=production
+
+# Security & Encryption
+ENCRYPTION_KEY=your_32_character_hex_encryption_key_here
+JWT_SECRET=your_jwt_secret_key_here_minimum_32_characters
+
+# Optional: Analytics
+NEXT_PUBLIC_GA_ID=G-xxxxx
+
+# Optional: Slack Integration
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxxxx
 ```
 
 ---
@@ -232,37 +262,41 @@ NODE_ENV=production
 Authentication is handled by Auth0 SDK automatically. Available endpoints:
 
 ```
-POST   /api/auth/login          → Redirect to Auth0 login
-POST   /api/auth/signup         → Redirect to Auth0 signup
-GET    /api/auth/callback       → Auth0 callback handler
-GET    /api/auth/logout         → Logout and clear session
+GET    /api/auth/login           → Redirect to Auth0 login
+GET    /api/auth/signup          → Redirect to Auth0 signup
+GET    /api/auth/callback        → Auth0 callback handler
+GET    /api/auth/logout          → Logout and clear session
 ```
 
 ### Monitoring
 
 ```
-POST   /api/ingest              → Submit bug/security events
-GET    /api/stats               → Get user statistics
+POST   /api/ingest               → Submit bug/security events
+GET    /api/stats                → Get user statistics
 ```
 
 **Ingest endpoint example:**
+
 ```bash
 curl -X POST https://pulseguardhq.xyz/api/ingest \
-  -H "x-api-key: YOUR_API_KEY" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "type": "error",
     "severity": "high",
     "message": "Database connection failed",
-    "timestamp": "2026-01-01T00:00:00Z"
+    "context": {
+      "userId": "user123",
+      "action": "database_query"
+    }
   }'
 ```
 
 ### Payments
 
 ```
-POST   /api/checkout            → Initiate Stripe checkout session
-POST   /api/webhooks/stripe     → Stripe webhook handler
+POST   /api/checkout             → Initiate Stripe checkout session
+POST   /api/webhooks/stripe      → Stripe webhook handler
 ```
 
 ---
@@ -273,15 +307,18 @@ PulseGuard includes enterprise-grade security measures:
 
 - ✅ **HTTPS-only** - All connections encrypted with TLS
 - ✅ **Content Security Policy (CSP)** - Prevents XSS attacks
-- ✅ **HSTS** - Forces HTTPS (2-year max-age)
-- ✅ **X-Frame-Options** - Prevents clickjacking
+- ✅ **HSTS** - Forces HTTPS (2-year max-age with preload)
+- ✅ **X-Frame-Options** - Prevents clickjacking (DENY)
 - ✅ **X-XSS-Protection** - XSS filter enabled
-- ✅ **CORS Protection** - Restricted cross-origin requests
-- ✅ **Input Validation** - Sanitizes all user input
+- ✅ **Referrer-Policy** - strict-origin-when-cross-origin
+- ✅ **Permissions-Policy** - Restricts camera, microphone, geolocation
+- ✅ **Input Validation** - Sanitizes all user input with Zod
 - ✅ **Secure Sessions** - Auth0 handles session security
 - ✅ **Environment Isolation** - Sensitive data never logged
-- ✅ **Webhook Verification** - Stripe signatures validated
-- ✅ **SQL Injection Prevention** - Parameterized queries
+- ✅ **Webhook Verification** - Stripe signatures validated with HMAC-SHA256
+- ✅ **SQL Injection Prevention** - Parameterized queries with pg library
+- ✅ **Rate Limiting** - API endpoints protected from abuse
+- ✅ **API Key Security** - Secure token generation and validation
 
 **Expected Security Ratings:**
 - Website Security: **A+**
@@ -310,14 +347,16 @@ PulseGuard includes enterprise-grade security measures:
 
 3. **Configure Custom Domain:**
    - Add your domain in Vercel project settings
-   - Update DNS records as instructed
+   - Update DNS records as instructed by Vercel
 
 4. **Post-Deployment Setup:**
    - Update Auth0 redirect URLs to production domain
-   - Update Stripe webhook endpoint URL to production
-   - Verify Resend domain configuration
+   - Update Stripe webhook endpoint URL to `https://pulseguardhq.xyz/api/webhooks/stripe`
+   - Verify Resend domain configuration with SPF/DKIM/DMARC
    - Clear Vercel cache and redeploy if needed
-   - Test all workflows end-to-end
+   - Test all workflows end-to-end (signup, login, checkout, ingest)
+   - Monitor Sentry for any errors
+   - Verify email delivery from Resend
 
 ---
 
@@ -342,30 +381,32 @@ pulseguard/
 │   ├── dashboard/
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
-│   │   └── globals.css
+│   │   └── ...
 │   ├── layout.tsx
 │   ├── page.tsx
 │   ├── providers.tsx
 │   └── globals.css
 ├── components/
-│   └── error-boundary.tsx
+│   └── (shared UI components)
 ├── lib/
 │   ├── db.ts
-│   └── email.ts
+│   ├── email.ts
+│   ├── sentry-setup.ts
+│   ├── security.ts
+│   ├── rate-limit.ts
+│   ├── stripe-client.ts
+│   └── auth0-utils.ts
 ├── public/
-│   ├── .well-known/
-│   │   ├── mta-sts.json
-│   │   └── mta-sts.txt
+│   ├── favicon.ico
 │   ├── manifest.json
 │   └── robots.txt
-├── types/
 ├── next.config.js
 ├── tailwind.config.js
 ├── tsconfig.json
 ├── postcss.config.js
 ├── package.json
-├── vercel.json
 ├── .env.example
+├── .env.local.example
 ├── .gitignore
 └── README.md
 ```
@@ -388,19 +429,25 @@ npm start
 
 # Run linter
 npm run lint
+
+# Type check
+npm run type-check
 ```
 
 ### Test Event Submission
 
 ```bash
 curl -X POST http://localhost:3000/api/ingest \
-  -H "x-api-key: test-key" \
+  -H "Authorization: Bearer test-key" \
   -H "Content-Type: application/json" \
   -d '{
     "type": "error",
     "severity": "high",
-    "message": "Test error",
-    "timestamp": "2026-01-01T00:00:00Z"
+    "message": "Test error event",
+    "context": {
+      "environment": "development",
+      "version": "1.0.0"
+    }
   }'
 ```
 
@@ -412,36 +459,111 @@ curl -X POST http://localhost:3000/api/ingest \
 - Verify all dependencies are correctly named in `package.json`
 - Clear npm cache: `npm cache clean --force`
 - Delete `node_modules` and reinstall: `npm install`
+- Verify Node.js version: `node --version` (must be 24.x)
 
 ### Auth0 Redirects Not Working
 - Verify callback URLs are added to Auth0 dashboard settings
 - Check `AUTH0_BASE_URL` matches your domain exactly
 - Clear browser cookies and try login again
 - Verify `AUTH0_CLIENT_ID` and `AUTH0_CLIENT_SECRET` are correct
+- Check Auth0 logs for redirect errors
 
 ### Stripe Checkout Not Working
 - Ensure using LIVE keys (`pk_live_`, `sk_live_`) in production
 - Verify webhook endpoint is configured in Stripe dashboard
 - Check `STRIPE_WEBHOOK_SECRET` matches exactly in Vercel
 - Test with Stripe test mode first if unsure
+- Verify price IDs exist in Stripe dashboard
+- Check Stripe logs for webhook failures
 
 ### Email Not Sending
 - Verify `RESEND_API_KEY` is correct
 - Check domain is verified in Resend dashboard
+- Verify SPF, DKIM, and DMARC records are set correctly
 - Try sending a test email from Resend interface first
 - Check spam/junk folders
+- Monitor Resend dashboard for delivery failures
 
 ### Database Connection Issues
 - Verify `DATABASE_URL` connection string is complete
 - Check database is accessible from Vercel IP range
-- Ensure tables are created with correct schema
+- Ensure all required tables are created with correct schema
 - Test connection locally before deploying
+- Verify SSL mode is enabled in connection string
 
 ### Vercel Deployment Issues
 - Clear build cache in Vercel project settings
 - Redeploy with cache cleared
 - Check all environment variables are set correctly
 - Review build logs in Vercel dashboard for specific errors
+- Verify Node.js version is set to 24.x in Vercel settings
+- Check function size limits (max 50MB)
+
+### Sentry Errors Not Appearing
+- Verify `NEXT_PUBLIC_SENTRY_DSN` is correct
+- Check Sentry project is active and receiving events
+- Ensure Sentry integration is enabled in providers.tsx
+- Test error capture with manual Sentry.captureException()
+
+---
+
+## 🔑 API Key Management
+
+**Generating User API Keys:**
+
+Users can generate API keys in their dashboard. Keys should:
+- Be stored securely (not in client-side code)
+- Have expiration dates
+- Be rotated regularly
+- Include usage rate limits
+- Be scoped to specific actions
+
+**Example Usage:**
+
+```bash
+curl -X POST https://pulseguardhq.xyz/api/ingest \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "error",
+    "severity": "high",
+    "message": "Application error occurred",
+    "context": {
+      "userId": "user123",
+      "action": "payment_processing",
+      "environment": "production"
+    }
+  }'
+```
+
+**Security Best Practices:**
+- Never commit API keys to version control
+- Rotate keys every 90 days
+- Use separate keys for development and production
+- Monitor key usage in dashboard
+- Revoke unused keys immediately
+
+---
+
+## ✅ Pre-Production Security Checklist
+
+Before deploying to production:
+
+- [ ] All environment variables are set in Vercel
+- [ ] Database backups are configured in Neon
+- [ ] HTTPS is enforced on all endpoints
+- [ ] Auth0 production keys are in use (not test keys)
+- [ ] Stripe is in production mode (pk_live_, sk_live_)
+- [ ] Sentry error tracking is enabled and receiving events
+- [ ] Resend domain is verified with SPF/DKIM/DMARC records
+- [ ] SSL certificate is valid (2+ years)
+- [ ] Security headers are enabled in next.config.js
+- [ ] Rate limiting is active on all API endpoints
+- [ ] Webhook signatures are verified
+- [ ] Database is backed up daily
+- [ ] Monitoring and alerting are configured
+- [ ] Error logging and tracking are enabled
+- [ ] API keys have been rotated and old ones revoked
 
 ---
 
@@ -453,6 +575,7 @@ curl -X POST http://localhost:3000/api/ingest \
 - [Resend Documentation](https://resend.com/docs)
 - [Sentry Documentation](https://docs.sentry.io)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Neon Documentation](https://neon.tech/docs)
 
 ---
 
@@ -477,12 +600,15 @@ Built with ❤️ by [JLR AI Software Company](https://jlr-ai.xyz)
 ## 🎯 Roadmap
 
 - [ ] Mobile SDKs (iOS/Android)
-- [ ] Advanced analytics dashboard
+- [ ] Advanced analytics dashboard with charts
 - [ ] Custom alert rules and thresholds
-- [ ] Slack/Teams integration
-- [ ] Performance monitoring
-- [ ] Dependency tracking
+- [ ] Slack/Teams/Discord integration
+- [ ] Performance monitoring (Core Web Vitals)
+- [ ] Dependency tracking and vulnerability scanning
 - [ ] Custom branding for Enterprise tier
+- [ ] Multi-organization support
+- [ ] Role-based access control (RBAC)
+- [ ] Audit logs and compliance reporting
 
 ---
 
@@ -496,6 +622,14 @@ We welcome contributions! Please:
 4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a Pull Request
 
+Please ensure:
+- Code follows TypeScript strict mode
+- All tests pass (`npm test`)
+- No console errors or warnings
+- Changes are documented
+
 ---
 
 **Happy monitoring! 🛡️**
+```
+
