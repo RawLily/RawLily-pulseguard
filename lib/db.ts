@@ -98,4 +98,5 @@ export function getPoolStats() {
   };
 }
 
+export const db = { query, getClient, transaction, close, healthCheck, getPoolStats };
 export default pool;
