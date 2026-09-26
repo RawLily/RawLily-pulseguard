@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClientIP } from '@/lib/security';
-import { z } from 'zod';
 
 interface RateLimitStore {
   [key: string]: {
