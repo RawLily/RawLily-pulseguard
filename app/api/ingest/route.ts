@@ -39,7 +39,7 @@ function checkRateLimit(apiKey: string, maxPerMinute: number = 100): boolean {
   return true;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     Sentry.addBreadcrumb({
       category: 'api.ingest',
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Get API key from Authorization header
-    const authHeader = request.headers.get('authorization');
+    const authHeader = _request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       Sentry.addBreadcrumb({
         category: 'api.ingest',
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     // Parse and validate request body
     let payload: EventPayload;
     try {
-      const body = await request.json();
+      const body = await _request.json();
       payload = EventPayloadSchema.parse(body);
     } catch (error) {
       Sentry.addBreadcrumb({
