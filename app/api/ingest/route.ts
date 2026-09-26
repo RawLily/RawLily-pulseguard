@@ -65,7 +65,8 @@ export async function POST(request: NextRequest) {
 
     // Check rate limit
     if (!checkRateLimit(apiKey)) {
-      Sentry.captureMessage('API key rate limited', 'warning', {
+      Sentry.captureMessage('API key rate limited', {
+        level: 'warning',
         tags: { component: 'ingest-api' },
       });
       return NextResponse.json(
@@ -152,8 +153,8 @@ export async function POST(request: NextRequest) {
     if (payload.type === 'security' && ['high', 'critical'].includes(payload.severity)) {
       Sentry.captureMessage(
         `Security threat detected: ${payload.message}`,
-        'error',
         {
+          level: 'error',
           tags: {
             component: 'ingest-api',
             eventId: event.id,
