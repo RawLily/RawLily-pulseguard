@@ -20,7 +20,7 @@ pool.on('connect', () => {
   console.log('[Database] New connection established');
 });
 
-export async function query<T = any>(
+export async function query<T extends { [key: string]: any } = { [key: string]: any }>(
   text: string,
   params?: unknown[]
 ): Promise<QueryResult<T>> {
