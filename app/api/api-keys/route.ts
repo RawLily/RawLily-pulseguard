@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     Sentry.addBreadcrumb({
       category: 'api.api-keys',
