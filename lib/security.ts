@@ -154,4 +154,19 @@ export function getClientIP(req: NextRequest): string {
 }
 
 export function isSuspiciousInput(input: string): boolean {
-  if (!input || typeof input !== 'string') ret
+  if (!input || typeof input !== 'string') {
+    return false;
+  }
+
+  const suspiciousPatterns = [
+    /<script/i,
+    /javascript:/i,
+    /on\w+\s*=/i,
+    /sql\s*(insert|select|update|delete|drop)/i,
+    /union\s+select/i,
+    /exec\s*\(/i,
+    /eval\s*\(/i,
+  ];
+
+  return suspiciousPatterns.some(pattern => pattern.test(input));
+}
