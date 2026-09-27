@@ -114,7 +114,7 @@ export async function cancelSubscription(
   subscriptionId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await stripe.subscriptions.del(subscriptionId);
+    await stripe.subscriptions.cancel(subscriptionId);
     console.log('[Stripe] Subscription cancelled:', subscriptionId);
     return { success: true };
   } catch (error) {
