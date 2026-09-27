@@ -1,13 +1,13 @@
 import * as Sentry from '@sentry/nextjs';
 
 export function initializeSentry() {
-  if (typeof window === 'undefined') {
-    // Server-side initialization
+  if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     Sentry.init({
       dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
       environment: process.env.NODE_ENV || 'production',
       tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
       maxBreadcrumbs: 50,
+      
       beforeSend(event, hint) {
         // Enterprise security: Filter sensitive errors
         if (event.exception) {
@@ -33,6 +33,7 @@ export function initializeSentry() {
         }
         return event;
       },
+      
       initialScope: {
         tags: {
           component: 'pulseguard',
@@ -41,23 +42,6 @@ export function initializeSentry() {
         }
       }
     });
-  } else {
-    // Client-side initialization
-    Sentry.init({
-      dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-      environment: process.env.NODE_ENV || 'production',
-      tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-      integrations: [
-        // Session Replay configuration via integration
-        new Sentry.Integrations.Replay({
-          maskAllText: true,
-          blockAllMedia: true,
-          maskAllInputs: true
-        })
-      ],
-      replaysSessionSampleRate: 0.1,
-      replaysOnErrorSampleRate: 1.0,
-    });
   }
 }
 
@@ -65,9 +49,7 @@ export function captureException(
   error: Error,
   context: Record<string, unknown> = {}
 ) {
-  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-  if (!dsn) return;
-
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
   Sentry.captureException(error, {
     extra: context,
     tags: { severity: 'enterprise-tracked' }
@@ -78,9 +60,7 @@ export function captureMessage(
   message: string,
   level: 'fatal' | 'error' | 'warning' | 'info' | 'debug' = 'error'
 ) {
-  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-  if (!dsn) return;
-
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
   Sentry.captureMessage(message, level);
 }
 
@@ -89,9 +69,7 @@ export function addBreadcrumb(
   data: Record<string, unknown> = {},
   category: string = 'event'
 ) {
-  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-  if (!dsn) return;
-
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
   Sentry.addBreadcrumb({
     message,
     data,
@@ -101,9 +79,7 @@ export function addBreadcrumb(
 }
 
 export function setUserContext(userId: string, email: string, name?: string) {
-  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-  if (!dsn) return;
-
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
   Sentry.setUser({
     id: userId,
     email,
@@ -112,15 +88,11 @@ export function setUserContext(userId: string, email: string, name?: string) {
 }
 
 export function clearUserContext() {
-  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-  if (!dsn) return;
-
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
   Sentry.setUser(null);
 }
 
 export function setContext(name: string, context: Record<string, unknown>) {
-  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-  if (!dsn) return;
-
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
   Sentry.setContext(name, context);
 }
