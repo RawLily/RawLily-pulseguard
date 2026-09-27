@@ -13,9 +13,8 @@ const securityHeaders = [
 ];
 
 const cspHeader = isProduction
-  ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.auth0.com https://cdn.jsdelivr.net https://js.sentry-cdn.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https://auth0.auth0.com https://api.stripe.com https://api.resend.com https://sentry.io; frame-src 'self' https://auth0.com https://checkout.stripe.com; object-src 'none'; frame-ancestors 'none';"
+  ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.auth0.com https://cdn.jsdelivr.net https://js.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://dev-8zux3342wekcgta1.us.auth0.com https://api.stripe.com https://api.resend.com https://sentry.io; frame-src 'self' https://auth0.com https://checkout.stripe.com; object-src 'none'; frame-ancestors 'none';"
   : "default-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: ws: wss: data: blob:;";
-
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
